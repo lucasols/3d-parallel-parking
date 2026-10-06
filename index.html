@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel Park 3D</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231559b5'/><text x='32' y='47' font-size='42' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>P</text></svg>" />
+  </head>
+  <body>
+    <div id="viewport"></div>
+
+    <div id="loading" class="overlay">
+      <div class="loading-card">
+        <div class="logo-mark">P</div>
+        <div class="loading-title">Parallel Park 3D</div>
+        <div class="loading-sub">Paving the streets…</div>
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- In-game HUD -->
+    <div id="hud" class="hidden">
+      <div class="panel hud-info">
+        <div class="hud-title"><span id="hud-vehicle">Sedan</span><span id="hud-difficulty" class="badge">Medium</span></div>
+        <div class="hud-stats">
+          <div><label>Time</label><span id="hud-time">0:00.0</span></div>
+          <div><label>Direction changes</label><span id="hud-moves">0</span></div>
+          <div><label>Collisions</label><span id="hud-hits">0</span></div>
+          <div><label>Curb strikes</label><span id="hud-curb">0</span></div>
+        </div>
+        <div id="hud-spot" class="hud-spot"></div>
+      </div>
+
+      <div class="panel minimap-panel">
+        <canvas id="minimap" width="220" height="220"></canvas>
+        <div id="camera-label" class="camera-label">Chase cam</div>
+      </div>
+
+      <div class="panel hud-drive">
+        <div class="gears"><span id="gear-D">D</span><span id="gear-N">N</span><span id="gear-R">R</span></div>
+        <div class="speed"><span id="hud-speed">0</span><small>km/h</small></div>
+        <div id="hud-wheel-wrap" class="wheel-wrap">
+          <svg id="hud-wheel" viewBox="-50 -50 100 100" width="76" height="76">
+            <circle r="40" fill="none" stroke="currentColor" stroke-width="9" />
+            <circle r="11" fill="currentColor" />
+            <rect x="-38" y="-4" width="76" height="8" rx="3" fill="currentColor" />
+            <rect x="-4" y="0" width="8" height="38" rx="3" fill="currentColor" />
+            <rect x="-5" y="-49" width="10" height="9" rx="2" fill="#ff9f0a" />
+          </svg>
+          <div id="hud-steer" class="steer-text">0°</div>
+        </div>
+      </div>
+
+      <div id="hud-sensors" class="panel hud-sensors">
+        <svg viewBox="-60 -90 120 180" width="96" height="144">
+          <path id="sf3" class="arc" d="M -30 -66 Q 0 -78 30 -66" />
+          <path id="sf2" class="arc" d="M -36 -76 Q 0 -90 36 -76" />
+          <path id="sf1" class="arc" d="M -42 -86 Q 0 -102 42 -86" />
+          <rect x="-24" y="-56" width="48" height="112" rx="14" class="car-icon" />
+          <rect x="-18" y="-30" width="36" height="20" rx="4" class="car-glass" />
+          <rect x="-18" y="22" width="36" height="14" rx="4" class="car-glass" />
+          <path id="sr3" class="arc" d="M -30 66 Q 0 78 30 66" />
+          <path id="sr2" class="arc" d="M -36 76 Q 0 90 36 76" />
+          <path id="sr1" class="arc" d="M -42 86 Q 0 102 42 86" />
+        </svg>
+        <div id="sensor-readouts" class="sensor-readouts">
+          <div><label>Front</label><span id="sens-front">—</span></div>
+          <div><label>Rear</label><span id="sens-rear">—</span></div>
+          <div><label>Curb</label><span id="sens-curb">—</span></div>
+          <div><label>Angle</label><span id="sens-angle">—</span></div>
+        </div>
+      </div>
+
+      <div id="tutorial-panel" class="panel tutorial-panel hidden">
+        <div class="tutorial-head">
+          <span id="tutorial-step">Step 1</span>
+          <div id="tutorial-progress" class="tutorial-progress"></div>
+        </div>
+        <div id="tutorial-title" class="tutorial-title"></div>
+        <div id="tutorial-text" class="tutorial-text"></div>
+        <div id="tutorial-status" class="tutorial-status"></div>
+      </div>
+
+      <div id="pip-frame" class="pip-frame hidden"><span>REAR CAMERA</span></div>
+      <div id="hud-hint" class="hud-hint"></div>
+      <div id="toast" class="toast"></div>
+      <div id="keys-hint" class="keys-hint"><b>W/S</b> drive · <b>A/D</b> steer · <b>Space</b> brake · <b>Shift</b> creep · <b>C</b>/<b>1–6</b> camera · <b>Enter</b> finish · <b>Esc</b> pause</div>
+    </div>
+
+    <!-- Main menu -->
+    <div id="menu" class="hidden">
+      <div class="menu-panel">
+        <header class="menu-header">
+          <div class="logo-mark">P</div>
+          <div>
+            <h1>Parallel Park 3D</h1>
+            <p>Practice the maneuver everyone dreads — in seven different vehicles.</p>
+          </div>
+        </header>
+
+        <section>
+          <h2>Vehicle</h2>
+          <div id="vehicle-grid" class="vehicle-grid"></div>
+          <div id="vehicle-detail" class="vehicle-detail"></div>
+        </section>
+
+        <section>
+          <h2>Paint</h2>
+          <div id="swatches" class="swatches"></div>
+        </section>
+
+        <section class="two-col">
+          <div>
+            <h2>Difficulty</h2>
+            <div id="difficulty" class="segmented"></div>
+          </div>
+          <div>
+            <h2>Time of day</h2>
+            <div id="tod" class="segmented"></div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Driving aids</h2>
+          <div id="toggles" class="toggles"></div>
+        </section>
+
+        <button id="start-btn" class="primary-btn">Start driving</button>
+        <button id="tutorial-btn" class="ghost-btn">Tutorial · learn it step by step</button>
+        <div id="best-score" class="best-score"></div>
+
+        <details class="howto">
+          <summary>How to parallel park</summary>
+          <ol>
+            <li>Signal, then pull up alongside the car <b>in front of</b> the space, about 0.6–1 m away from it, with your rear bumpers lined up.</li>
+            <li>Reverse slowly. When your rear wheels pass their rear bumper, turn the wheel <b>fully towards the curb</b>.</li>
+            <li>Keep reversing until your car is at roughly <b>45°</b> — the projected path should point just behind the rear corner of the space.</li>
+            <li>Straighten the wheel and back in until your front bumper clears the front car's rear bumper.</li>
+            <li>Turn the wheel <b>fully away from the curb</b> and keep reversing to swing the front in.</li>
+            <li>Straighten up, then pull forward to centre yourself. Aim for <b>≤ 30 cm</b> from the curb.</li>
+          </ol>
+        </details>
+
+        <details class="howto">
+          <summary>Controls</summary>
+          <ul class="controls-list">
+            <li><kbd>W</kbd>/<kbd>↑</kbd> Drive forward · <kbd>S</kbd>/<kbd>↓</kbd> Reverse (brakes first if moving forward)</li>
+            <li><kbd>A</kbd>/<kbd>D</kbd> Turn steering wheel · <kbd>Space</kbd> Brake · hold <kbd>Shift</kbd> to creep</li>
+            <li><kbd>C</kbd> or <kbd>1</kbd>–<kbd>6</kbd> Change camera (<kbd>1</kbd> = driver's seat)</li>
+            <li>Driver view: drag the mouse or use <kbd>I</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> to look · hold <kbd>Q</kbd>/<kbd>E</kbd> to glance, <kbd>B</kbd> to look back · scroll or <kbd>Z</kbd>/<kbd>X</kbd> to zoom · <kbd>[</kbd>/<kbd>]</kbd> seat height · <kbd>V</kbd> or double-click to recentre · <kbd>T</kbd> tilt the passenger mirror down/up</li>
+            <li><kbd>Enter</kbd> Finish & score · <kbd>R</kbd> Restart · <kbd>N</kbd> New street · <kbd>G</kbd> Toggle guides · <kbd>M</kbd> Mute · <kbd>Esc</kbd> Pause</li>
+            <li>Gamepads: left stick steers, RT/LT drive/reverse, B brake, A finish, Y camera</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+
+    <!-- Pause -->
+    <div id="pause" class="overlay hidden">
+      <div class="card">
+        <h2 class="card-title">Paused</h2>
+        <div class="card-actions vertical">
+          <button id="resume-btn" class="primary-btn">Resume</button>
+          <button id="pause-restart-btn" class="ghost-btn">Restart attempt</button>
+          <button id="pause-menu-btn" class="ghost-btn">Main menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="overlay hidden">
+      <div class="card result-card">
+        <div id="result-stars" class="stars"></div>
+        <h2 id="result-title" class="card-title"></h2>
+        <div id="result-score" class="result-score"></div>
+        <p id="result-reason" class="result-reason"></p>
+        <div id="result-items" class="result-items"></div>
+        <div id="result-meta" class="result-meta"></div>
+        <div class="card-actions">
+          <button id="result-retry-btn" class="ghost-btn">Retry <kbd>R</kbd></button>
+          <button id="result-next-btn" class="primary-btn">Next street <kbd>N</kbd></button>
+          <button id="result-menu-btn" class="ghost-btn">Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
