@@ -3,6 +3,8 @@
 A browser game for practicing parallel parking, built with Three.js and TypeScript.
 All of the art is generated in code at startup. There are no external assets.
 
+**Play it:** https://3d-parallel-parking.email-8fb.workers.dev
+
 ## Run
 
 ```sh
