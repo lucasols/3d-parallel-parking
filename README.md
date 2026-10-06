@@ -6,10 +6,17 @@ All of the art is generated in code at startup. There are no external assets.
 ## Run
 
 ```sh
-npm install
-npm run dev        # http://localhost:5173
-npm run build      # typecheck + production bundle in dist/
+pnpm install
+pnpm dev           # http://localhost:5173
+pnpm build         # typecheck + production bundle in dist/
+pnpm run deploy    # build + deploy to Cloudflare Workers (needs `wrangler login`)
 ```
+
+## Deploy
+
+Every push to `main` deploys `dist/` as a static-assets Cloudflare Worker through
+`.github/workflows/deploy.yml`. Pull requests only build. The workflow reads the
+`CLOUDFLARE_API_TOKEN` repository secret. The account and Worker name come from `wrangler.jsonc`.
 
 ## Features
 

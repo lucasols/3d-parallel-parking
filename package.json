@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "pnpm build && wrangler deploy"
   },
   "dependencies": {
     "three": "^0.186.1"
@@ -16,6 +17,8 @@
   "devDependencies": {
     "@types/three": "^0.186.0",
     "typescript": "^7.0.2",
-    "vite": "^8.3.2"
-  }
+    "vite": "^8.3.2",
+    "wrangler": "4.147.0"
+  },
+  "packageManager": "pnpm@11.1.2"
 }
